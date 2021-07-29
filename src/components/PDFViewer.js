@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import ClipModal from "./ClipModal";
 
 function initPDFJs(source, iframeContainer) {
   const iframe = document.createElement("iframe");
@@ -10,7 +11,7 @@ function initPDFJs(source, iframeContainer) {
   iframeContainer.appendChild(iframe);
 }
 
-function initClipping(signal) {
+function initClipping(signal, showClipModal) {
   let activeCanvas;
   let activeCanvasBoundingRect;
   let canvasContext;
@@ -122,8 +123,9 @@ function initClipping(signal) {
         const hidden_data = c
           .toDataURL("image/png")
           .replace("image/png", "image/octet-stream");
-        console.log({ clip: c, blob: hidden_data });
+        // console.log({ clip: c, blob: hidden_data });
         // show clip modal
+        showClipModal(hidden_data);
 
         canvasContext.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
       }
@@ -148,6 +150,8 @@ class PDFViewer extends Component {
     this.iframeContainerRef = React.createRef();
     this.state = {
       clippingMode: false,
+      showClipModal: false,
+      blob: null,
     };
   }
 
@@ -176,12 +180,26 @@ class PDFViewer extends Component {
 
     if (this.state.clippingMode) {
       this.initAbortController();
-      initClipping(this.signal);
+      initClipping(this.signal, this.showClipModal);
       console.log("Clipping Mode: ON");
     } else {
       this.controller.abort();
       console.log("Clipping Mode: OFF");
     }
+  };
+
+  showClipModal = (blob) => {
+    this.setState({
+      showClipModal: true,
+      blob,
+    });
+    console.log({ blob });
+  };
+
+  closeClipModal = () => {
+    this.setState({
+      showClipModal: false,
+    });
   };
 
   render() {
@@ -202,6 +220,14 @@ class PDFViewer extends Component {
           id="iframeContainer"
           style={{ width: "100%", height: "100%" }}
         ></div>
+        {this.state.showClipModal && (
+          <div>
+            <ClipModal
+              blob={this.state.blob}
+              closeClipModal={this.closeClipModal}
+            />
+          </div>
+        )}
       </>
     );
   }
