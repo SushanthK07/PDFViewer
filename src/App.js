@@ -1,8 +1,16 @@
+import { Route, Switch } from "react-router-dom";
+
+import Home from "./components/Home";
+import PDFViewer from "./components/PDFViewer";
+
 function App() {
   return (
-    <div>
-      Empty React Application
-    </div>
+    <>
+      <Switch>
+        <Route exact path="/document" component={PDFViewer} />
+        <Route path="/" component={Home} />
+      </Switch>
+    </>
   );
 }
 
