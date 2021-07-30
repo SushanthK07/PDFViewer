@@ -1455,6 +1455,7 @@ const PDFViewerApplication = {
     this._initializePageLabels(pdfDocument);
 
     this._initializeMetadata(pdfDocument);
+    window.parent.postMessage("pdfloaded", "*");
   },
 
   async _scriptingDocProperties(pdfDocument) {

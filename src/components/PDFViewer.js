@@ -148,6 +148,8 @@ class PDFViewer extends Component {
   constructor(props) {
     super(props);
     this.iframeContainerRef = React.createRef();
+    this.messageController = new window.AbortController();
+    this.messageSignal = this.messageController.signal;
     this.state = {
       clippingMode: false,
       showClipModal: false,
@@ -160,30 +162,55 @@ class PDFViewer extends Component {
     const iframeContainer = this.iframeContainerRef.current;
     initPDFJs(src, iframeContainer);
 
-    // TODO: should make this work reliably
-    setTimeout(() => {
-      const iframeDocument = window.frames["pdf-js-iframe"].document;
-
-      // add clip button event listener
-      const clipBtnElement = iframeDocument.querySelector("#needl-clip-btn");
-      clipBtnElement.addEventListener("click", this.handleClipping);
-    }, 1000);
+    window.addEventListener("message", (message) => {
+      if (message.data === "pdfloaded") {
+        this.onPDFLoad();
+      }
+    }, { signal: this.messageSignal});
   }
 
-  initAbortController = () => {
-    this.controller = new window.AbortController();
-    this.signal = this.controller.signal;
+  componentWillUnmount() {
+    if (this.state.clippingMode) {
+      this.clippingController.abort();
+      this.clipBtnController.abort();
+    }
+    this.messageController.abort();
+  }
+
+  initClipBtnAbortController = () => {
+    this.clipBtnController = new window.AbortController();
+    this.clipBtnSignal = this.clipBtnController.signal;
+  };
+
+  initClippingAbortController = () => {
+    this.clippingController = new window.AbortController();
+    this.clippingSignal = this.clippingController.signal;
+  };
+
+  onPDFLoad = () => {
+    console.log("PDF loaded");
+    const iframeWindow = window.frames["pdf-js-iframe"];
+    let clipBtnElement;
+
+    if (iframeWindow) {
+      const iframeDocument = iframeWindow.document;
+      clipBtnElement = iframeDocument.querySelector("#needl-clip-btn");
+      this.initClipBtnAbortController();
+      clipBtnElement.addEventListener("click", this.handleClipping, {
+        signal: this.clipBtnSignal,
+      });
+    }
   };
 
   handleClipping = () => {
     this.setState((prevState) => ({ clippingMode: !prevState.clippingMode }));
 
     if (this.state.clippingMode) {
-      this.initAbortController();
-      initClipping(this.signal, this.showClipModal);
+      this.initClippingAbortController();
+      initClipping(this.clippingSignal, this.showClipModal);
       console.log("Clipping Mode: ON");
     } else {
-      this.controller.abort();
+      this.clippingController.abort();
       console.log("Clipping Mode: OFF");
     }
   };
