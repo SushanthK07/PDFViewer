@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 import ClipModal from "./ClipModal";
 
 function initPDFJs(source, iframeContainer) {
@@ -159,8 +159,12 @@ class PDFViewer extends Component {
 
   componentDidMount() {
     const { src } = this.props;
+    const { file } = this.props.match.params;
     const iframeContainer = this.iframeContainerRef.current;
-    initPDFJs(src, iframeContainer);
+
+    const pdfSource = file || src;
+    console.log(pdfSource);
+    initPDFJs(pdfSource, iframeContainer);
 
     window.addEventListener("message", (message) => {
       if (message.data === "pdfloaded") {
@@ -260,4 +264,4 @@ class PDFViewer extends Component {
   }
 }
 
-export default PDFViewer;
+export default withRouter(PDFViewer);

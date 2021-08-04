@@ -2175,7 +2175,7 @@ let validateFileURL;
     }
 
     try {
-      const viewerOrigin = new URL(window.location.href).origin || "null";
+      const viewerOrigin = "null";
 
       if (HOSTED_VIEWER_ORIGINS.includes(viewerOrigin)) {
         return;
@@ -2241,6 +2241,7 @@ function webViewerInitialized() {
   const queryString = document.location.search.substring(1);
   const params = (0, _ui_utils.parseQueryString)(queryString);
   file = "file" in params ? params.file : _app_options.AppOptions.get("defaultUrl");
+  file = queryString.slice(5);
   validateFileURL(file);
   const fileInput = document.createElement("input");
   fileInput.id = appConfig.openFileInputName;
@@ -3900,7 +3901,7 @@ let pdfjsLib;
 if (typeof window !== "undefined" && window["pdfjs-dist/build/pdf"]) {
   pdfjsLib = window["pdfjs-dist/build/pdf"];
 } else {
-  pdfjsLib = require("../build/pdf.js");
+  pdfjsLib = require("../build/pdf.js.js.js");
 }
 
 module.exports = pdfjsLib;
