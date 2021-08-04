@@ -1,6 +1,6 @@
 import { Route, Switch } from "react-router-dom";
 
-import Home from "./components/Home";
+// import Home from "./components/Home";
 import PDFViewer from "./components/PDFViewer";
 
 function App() {
@@ -8,10 +8,10 @@ function App() {
   return (
     <>
       <Switch>
-        <Route exact path="/document">
+        <Route path="/">
           <PDFViewer src={pdfUrl} />
         </Route>
-        <Route path="/" component={Home} />
+        {/* <Route path="/" component={Home} /> */}
       </Switch>
     </>
   );
